@@ -24,5 +24,5 @@ Tool to create a simple chat TextView<<-DESC
   s.platform     = :ios, '7.0'
   s.requires_arc = true
 
-  s.source_files = 'Pod/**/*'
+  s.source_files = 'Pod/Classes/**/*'
 end
