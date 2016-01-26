@@ -25,7 +25,7 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
     /**
      Undefined (not set)
      */
-    ASYSimpleChatTextViewPositionUndefined = -1,
+    ASYSimpleChatTextViewPositionUndefined = NSUIntegerMax,
     /**
      TextView is at the bottom of scrollView
      */
@@ -102,24 +102,24 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
 /**
  Returns an instance of ASYSimpleChatTextViewHandler
 
- @param textView         The UITextView which needs to be resized
- @param heightConstraint The height constraint of textview (changeable)
+ @param textView                 The UITextView which needs to be resized
+ @param textViewHeightConstraint The height constraint of textview (changeable)
  */
 - (nullable instancetype)initWithTextView:(nonnull UITextView *)textView
-                      andHeightConstraint:(nonnull NSLayoutConstraint *)heightConstraint;
+                     withHeightConstraint:(nonnull NSLayoutConstraint *)textViewHeightConstraint;
 
 /**
  Returns an instance of ASYSimpleChatTextViewHandler
 
  @param textView                     The UITextView which needs to be resized
- @param heightConstraint             The height constraint of textview (changeable)
- @param scrollViewKeyboardConstraint The constraint to manipulate vertical position if inputView frame changes (changeable)
+ @param textViewHeightConstraint     The height constraint of textview (changeable)
  @param scrollView                   The UIScrollView that animates along with textView and heightConstraint
+ @param scrollViewKeyboardConstraint The constraint to manipulate vertical position if inputView frame changes (changeable)
  */
 - (nullable instancetype)initWithTextView:(nonnull UITextView *)textView
-                         heightConstraint:(nonnull NSLayoutConstraint *)heightConstraint
-             scrollViewKeyboardConstraint:(nullable NSLayoutConstraint *)scrollViewKeyboardConstraint
-                  andObservableScrollView:(nullable __kindof UIScrollView *)scrollView NS_DESIGNATED_INITIALIZER;
+                     withHeightConstraint:(nonnull NSLayoutConstraint *)textViewHeightConstraint
+                  andObservableScrollView:(nullable __kindof UIScrollView *)scrollView
+                   withKeyboardConstraint:(nullable NSLayoutConstraint *)scrollViewKeyboardConstraint NS_DESIGNATED_INITIALIZER;
 
 /**
  Limits resizing of UITextView between minimumNumberOfLines and maximumNumberOfLines

@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "ASYSimpleChatTextView"
-  s.version          = "0.5"
+  s.version          = "0.5.1"
   s.summary          = "Tool to create a simple chat TextView"
 
   s.description      = <<-DESC
@@ -19,10 +19,10 @@ Tool to create a simple chat TextView<<-DESC
   s.license          = 'MIT'
   s.author           = { "Sychev Aleksandr" => "brain89g@gmail.com" }
   s.source           = { :git => "https://github.com/Brain89/ASYSimpleChatTextView.git", :tag => s.version.to_s }
-  s.header_mappings_dir = 'Pod'
+  s.header_mappings_dir = 'Pod/Classes'
 
   s.platform     = :ios, '7.0'
   s.requires_arc = true
 
-  s.source_files = 'Pod/**/*'
+  s.source_files = 'Pod/Classes/**/*'
 end
