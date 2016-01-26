@@ -21,7 +21,6 @@
 #import "ASYRootViewFinder.h"
 
 static CGFloat const ASYSimpleChatTextViewDefaultAnimationDuration = 0.34;
-static float const ASYSimpleChatTextViewHeightConstraintPriority = 999.0;
 static NSUInteger const ASYSimpleChatTextViewDefaultMinimumNumberOfLines = 1u;
 static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIntegerMax;
 
@@ -31,6 +30,8 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 @property (nonnull, nonatomic, strong, readwrite) NSLayoutConstraint *heightConstraint;
 @property (nonnull, nonatomic, strong, readwrite) NSLayoutConstraint *scrollViewKeyboardConstraint;
 @property (nonnull, nonatomic, strong, readwrite) UIScrollView *observableScrollView;
+
+@property (nonatomic, assign) CGFloat scrollViewKeyboardConstraintOriginConstant;
 
 @property (nonatomic, assign, readwrite) NSUInteger minimumNumberOfLines;
 @property (nonatomic, assign, readwrite) NSUInteger maximumNumberOfLines;
@@ -53,21 +54,17 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 }
 
 - (nullable instancetype)initWithTextView:(nonnull UITextView *)textView
-                         heightConstraint:(nonnull NSLayoutConstraint *)heightConstraint
-             scrollViewKeyboardConstraint:(nullable NSLayoutConstraint *)scrollViewKeyboardConstraint
-                  andObservableScrollView:(nullable __kindof UIScrollView *)scrollView {
+                     withHeightConstraint:(nonnull NSLayoutConstraint *)textViewHeightConstraint
+                  andObservableScrollView:(nullable __kindof UIScrollView *)scrollView
+                   withKeyboardConstraint:(nullable NSLayoutConstraint *)scrollViewKeyboardConstraint {
     self = [super init];
     if (self) {
         _chatTextView = textView;
-        _heightConstraint = heightConstraint;
+        _heightConstraint = textViewHeightConstraint;
         _scrollViewKeyboardConstraint = scrollViewKeyboardConstraint;
-        /**
-         @author Aleksandr Sychev
-
-         Fix 'UIView-Encapsulated-Layout-Height' priority conflict
-         */
-        _scrollViewKeyboardConstraint.priority = ASYSimpleChatTextViewHeightConstraintPriority;
         _observableScrollView = scrollView;
+
+        _scrollViewKeyboardConstraintOriginConstant = _scrollViewKeyboardConstraint.constant;
 
         _inputViewObserver = [ASYInputViewObserver new];
         _rootViewFinder = [ASYRootViewFinder new];
@@ -94,11 +91,11 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 }
 
 - (nullable instancetype)initWithTextView:(nonnull UITextView *)textView
-                      andHeightConstraint:(nonnull NSLayoutConstraint *)heightConstraint {
+                     withHeightConstraint:(nonnull NSLayoutConstraint *)textViewHeightConstraint {
     return [self initWithTextView:textView
-                    heightConstraint:heightConstraint
-        scrollViewKeyboardConstraint:nil
-             andObservableScrollView:nil];
+             withHeightConstraint:textViewHeightConstraint
+          andObservableScrollView:nil
+           withKeyboardConstraint:nil];
 }
 
 #pragma clang diagnostic push
@@ -140,7 +137,7 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 
     self.chatTextView.text = text;
     if (text.length == 0u) {
-        [self updateVerticalAlignmentWithHeight:self.minimumHeight animated:animated];
+        [self updateWithHeight:self.minimumHeight animated:animated];
     } else {
         [self resizeTextViewAnimated:animated];
     }
@@ -153,7 +150,7 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 
     self.chatTextView.attributedText = attributedText;
     if (attributedText.length == 0u) {
-        [self updateVerticalAlignmentWithHeight:self.minimumHeight animated:animated];
+        [self updateWithHeight:self.minimumHeight animated:animated];
     } else {
         [self resizeTextViewAnimated:animated];
     }
@@ -196,15 +193,23 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 #pragma mark - InputViewObserverDelegate methods
 
 - (void)observer:(nonnull ASYInputViewObserver *)observer
-    caughtAcessoryViewFrameWillChangeWithHeightDelta:(CGFloat)inputAccessoryViewHeightDelta
-                                   animationDuration:(NSTimeInterval)inputAccessoryViewAnimationDuration
-                                      animationCurve:(UIViewAnimationCurve)animationCurve {
-    CGFloat updatedConstraintConstant = inputAccessoryViewHeightDelta + CGRectGetHeight(self.chatTextView.inputAccessoryView.frame);
+    caughtAcessoryViewFrameWillChangeWithMinY:(CGFloat)inputAccessoryViewMinY
+                            animationDuration:(NSTimeInterval)inputAccessoryViewAnimationDuration
+                               animationCurve:(UIViewAnimationCurve)animationCurve {
+    CGFloat constraintOffset = CGRectGetMaxY([UIScreen mainScreen].bounds) - inputAccessoryViewMinY +
+                               CGRectGetHeight(self.chatTextView.inputAccessoryView.frame);
     CGFloat currentDataInScrollViewOffset =
         MAX(CGRectGetHeight(self.observableScrollView.frame) - self.observableScrollView.contentSize.height, 0.0);
-    CGFloat updatedContentOffsetY =
-        MAX(self.observableScrollView.contentOffset.y + updatedConstraintConstant - currentDataInScrollViewOffset, 0.0);
-    self.scrollViewKeyboardConstraint.constant += updatedConstraintConstant;
+
+    /**
+     Increase because scrollViewKeyboardConstraintOriginConstant should change only for ASYSimpleChatTextViewPositionAtScrollViewBottom
+     */
+    CGFloat updatedConstraintConstant = self.scrollViewKeyboardConstraintOriginConstant + constraintOffset;
+    CGFloat previousConstraintConstant = self.scrollViewKeyboardConstraint.constant;
+    self.scrollViewKeyboardConstraint.constant = MAX(self.scrollViewKeyboardConstraintOriginConstant, updatedConstraintConstant);
+    CGFloat constraintDelta = previousConstraintConstant - self.scrollViewKeyboardConstraint.constant;
+    CGFloat updatedScrollViewContentOffsetY =
+        MAX(self.observableScrollView.contentOffset.y - constraintDelta - currentDataInScrollViewOffset, 0.0);
 
     UIView *rootView = [self.rootViewFinder findRootViewOf:self.chatTextView];
     UIViewAnimationOptions optionsFromCurve = [self.converter convert:animationCurve];
@@ -215,7 +220,7 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
                          [rootView layoutIfNeeded];
                          if (self.textViewPositionInRelationToScrollView == ASYSimpleChatTextViewPositionAtScrollViewBottom) {
                              self.observableScrollView.contentOffset =
-                                 CGPointMake(self.observableScrollView.contentOffset.x, updatedContentOffsetY);
+                                 CGPointMake(self.observableScrollView.contentOffset.x, updatedScrollViewContentOffsetY);
                          }
                      }
                      completion:nil];
@@ -260,19 +265,19 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 
 - (void)resizeTextViewAnimated:(BOOL)animated {
     NSUInteger textViewNumberOfLines = self.currentNumberOfLines;
-    CGFloat verticalAlignmentConstant = 0.0;
+    CGFloat heightConstant = 0.0;
     if (textViewNumberOfLines <= self.minimumNumberOfLines) {
-        verticalAlignmentConstant = self.minimumHeight;
+        heightConstant = self.minimumHeight;
     } else if ((textViewNumberOfLines > self.minimumNumberOfLines) && (textViewNumberOfLines <= self.maximumNumberOfLines)) {
         CGFloat currentHeight = [self currentHeight];
-        verticalAlignmentConstant = (currentHeight > self.minimumHeight)
-                                        ? ((currentHeight < self.maximumHeight) ? currentHeight : self.maximumHeight)
-                                        : self.minimumHeight;
+        heightConstant = (currentHeight > self.minimumHeight)
+                             ? ((currentHeight < self.maximumHeight) ? currentHeight : self.maximumHeight)
+                             : self.minimumHeight;
     } else if (textViewNumberOfLines > self.maximumNumberOfLines) {
-        verticalAlignmentConstant = self.maximumHeight;
+        heightConstant = self.maximumHeight;
     }
-    if (self.heightConstraint.constant != verticalAlignmentConstant) {
-        [self updateVerticalAlignmentWithHeight:verticalAlignmentConstant animated:animated];
+    if (self.heightConstraint.constant != heightConstant) {
+        [self updateWithHeight:heightConstant animated:animated];
     }
     if (textViewNumberOfLines <= self.maximumNumberOfLines) {
         [self.chatTextView setContentOffset:CGPointZero animated:YES];
@@ -295,7 +300,7 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
     [self resizeTextViewAnimated:NO];
 }
 
-- (void)updateVerticalAlignmentWithHeight:(CGFloat)height animated:(BOOL)animated {
+- (void)updateWithHeight:(CGFloat)height animated:(BOOL)animated {
     CGFloat originalHeight = CGRectGetHeight(self.chatTextView.frame);
     CGPoint updatedContentOffset = [self calculateUpdatedScrollViewContentOffsetWithHeight:height];
     self.heightConstraint.constant = height;
