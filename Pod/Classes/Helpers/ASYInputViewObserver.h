@@ -35,11 +35,11 @@
 @required
 
 /**
- Notifies if inputView frame will really change
+ Notifies if inputView frame will change
  */
 - (void)observer:(nonnull ASYInputViewObserver *)observer
-    caughtAcessoryViewFrameWillChangeWithHeightDelta:(CGFloat)inputAccessoryViewHeightDelta
-                                   animationDuration:(NSTimeInterval)inputAccessoryViewAnimationDuration
-                                      animationCurve:(UIViewAnimationCurve)animationCurve;
+    caughtAcessoryViewFrameWillChangeWithMinY:(CGFloat)inputAccessoryViewMinY
+                            animationDuration:(NSTimeInterval)inputAccessoryViewAnimationDuration
+                               animationCurve:(UIViewAnimationCurve)animationCurve;
 
 @end

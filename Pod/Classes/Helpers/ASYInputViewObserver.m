@@ -16,17 +16,6 @@
 
 #import "ASYInputViewObserver.h"
 
-@interface ASYInputViewObserver ()
-
-@property (nonatomic, assign) CGPoint outScreenPoint1;
-@property (nonatomic, assign) CGPoint outScreenPoint2;
-@property (nonatomic, assign) CGPoint lattestOutScreenPoint;
-@property (nonatomic, assign) CGRect lattestInputViewOriginalFrame;
-@property (nonatomic, assign) CGRect lattestInputViewFinalFrame;
-@property (nonatomic, assign) CGFloat fixRotationHeight;
-
-@end
-
 @implementation ASYInputViewObserver
 
 #pragma mark - Lifecycle
@@ -39,8 +28,6 @@
     self = [super initWithFrame:frame];
     if (self) {
         self.userInteractionEnabled = NO;
-        _outScreenPoint1 = CGPointMake(0.0, CGRectGetMaxY([UIScreen mainScreen].bounds));
-        _outScreenPoint2 = CGPointMake(0.0, CGRectGetMaxX([UIScreen mainScreen].bounds));
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(keyboardFrameWillChange:)
                                                      name:UIKeyboardWillChangeFrameNotification
@@ -52,59 +39,17 @@
 #pragma mark - Notifications
 
 - (void)keyboardFrameWillChange:(NSNotification *)notification {
-    NSValue *originalFrameValue = notification.userInfo[UIKeyboardFrameBeginUserInfoKey];
     NSValue *finalFrameValue = notification.userInfo[UIKeyboardFrameEndUserInfoKey];
-    CGRect originalFrame = [originalFrameValue CGRectValue];
     CGRect finalFrame = [finalFrameValue CGRectValue];
-    CGPoint currentOutScreenPoint = CGPointMake(0.0, CGRectGetMaxY([UIScreen mainScreen].bounds));
-
-    /**
-     Fix iOS8 hardware keyboard toggling
-     */
-    if (CGRectEqualToRect(self.lattestInputViewFinalFrame, finalFrame) &&
-        CGRectEqualToRect(self.lattestInputViewOriginalFrame, originalFrame)) {
-        return;
-    }
-
-    /**
-     Fix iOS8 & iOS9 hardware keyboard toggling
-     */
-    if (CGRectGetMinY(originalFrame) >= currentOutScreenPoint.y && CGRectGetMinY(finalFrame) >= currentOutScreenPoint.y &&
-        CGPointEqualToPoint(currentOutScreenPoint, self.lattestOutScreenPoint)) {
-        return;
-    }
-
-    CGFloat originalMinY = CGRectGetMinY(originalFrame);
-    CGFloat finalMinY = CGRectGetMinY(finalFrame);
-    CGFloat heightDelta = originalMinY - finalMinY;
-
-    /**
-     Fix iOS9 rotation
-     */
-    if (CGPointEqualToPoint(self.lattestInputViewFinalFrame.origin, self.outScreenPoint1) ||
-        CGPointEqualToPoint(self.lattestInputViewFinalFrame.origin, self.outScreenPoint2)) {
-        CGFloat originalHeight = CGRectGetHeight(originalFrame);
-        CGFloat finalHeight = CGRectGetHeight(finalFrame);
-        if (originalHeight != finalHeight) {
-            self.fixRotationHeight = finalHeight;
-            heightDelta = self.fixRotationHeight;
-        }
-    } else if (self.fixRotationHeight != 0.0) {
-        heightDelta -= self.fixRotationHeight;
-        self.fixRotationHeight = 0.0;
-    }
-
-    self.lattestInputViewOriginalFrame = originalFrame;
-    self.lattestInputViewFinalFrame = finalFrame;
-    self.lattestOutScreenPoint = currentOutScreenPoint;
+    CGFloat finalFrameMinY = CGRectGetMinY(finalFrame);
 
     NSNumber *animationDurationValue = notification.userInfo[UIKeyboardAnimationDurationUserInfoKey];
     NSNumber *animationCurveValue = notification.userInfo[UIKeyboardAnimationCurveUserInfoKey];
 
     [self.delegate observer:self
-        caughtAcessoryViewFrameWillChangeWithHeightDelta:heightDelta
-                                       animationDuration:animationDurationValue.doubleValue
-                                          animationCurve:animationCurveValue.integerValue];
+        caughtAcessoryViewFrameWillChangeWithMinY:finalFrameMinY
+                                animationDuration:animationDurationValue.doubleValue
+                                   animationCurve:animationCurveValue.integerValue];
 }
 
 @end
