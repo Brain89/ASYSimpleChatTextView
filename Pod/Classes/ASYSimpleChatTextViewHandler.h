@@ -68,7 +68,7 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
 @property (nonnull, nonatomic, strong, readonly) UIScrollView *observableScrollView;
 
 /**
- The relative position of textView and scrollView
+ The relative position of textView and scrollView.
 
  If scrollView is not nil default value is ASYSimpleChatTextViewPositionAtScrollViewBottom
  */
@@ -100,7 +100,7 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
 @property (nullable, nonatomic, weak) id<ASYSimpleChatTextViewHandlerDelegate> delegate;
 
 /**
- Returns an instance of ASYSimpleChatTextViewHandler
+ Returns an instance of ASYSimpleChatTextViewHandler.
 
  @param textView                 The UITextView which needs to be resized
  @param textViewHeightConstraint The height constraint of textview (changeable)
@@ -109,7 +109,7 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
                      withHeightConstraint:(nonnull NSLayoutConstraint *)textViewHeightConstraint;
 
 /**
- Returns an instance of ASYSimpleChatTextViewHandler
+ Returns an instance of ASYSimpleChatTextViewHandler.
 
  @param textView                     The UITextView which needs to be resized
  @param textViewHeightConstraint     The height constraint of textview (changeable)
@@ -122,7 +122,21 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
                    withKeyboardConstraint:(nullable NSLayoutConstraint *)scrollViewKeyboardConstraint NS_DESIGNATED_INITIALIZER;
 
 /**
- Limits resizing of UITextView between minimumNumberOfLines and maximumNumberOfLines
+ Limits resizing of UITextView with lines lower limit.
+ 
+ @param minimumNumberOfLines Lower limit on number of lines
+ */
+- (void)updateMinimumNumberOfLines:(NSUInteger)minimumNumberOfLines;
+
+/**
+ Limits resizing of UITextView with lines upper limit.
+ 
+ @param maximumNumberOfLines Upper limit on number of lines
+ */
+- (void)updateMaximumNumberOfLine:(NSUInteger)maximumNumberOfLines;
+
+/**
+ Limits resizing of UITextView between minimumNumberOfLines and maximumNumberOfLines.
 
  @param minimumNumberOfLines Lower limit on number of lines
  @param maximumNumberOfLines Upper limit on number of lines
@@ -139,7 +153,7 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
 
 /**
  Sets attributedText of textView and resizes it according to the length of the attributed text
- Ignores object's animated property
+ Ignores object's animated property.
 
  @param animated specify YES if you want to animate the size change of UITextView or NO if you don't
  */
@@ -147,7 +161,7 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
 
 /**
  Appends appendedText to text of textView and resizes it according to the length of the resulting string
- Ignores object's animated property
+ Ignores object's animated property.
 
  @param animated specify YES if you want to animate the size change of UITextView or NO if you don't
 */
@@ -155,8 +169,8 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
 
 /**
  Appends attributed appendedText to attributedText of textView and resizes it according to the length of the resulting attributed
- string
- Ignores object's animated property
+ string.
+ Ignores object's animated property.
 
  @param animated specify YES if you want to animate the size change of UITextView or NO if you don't
  */
