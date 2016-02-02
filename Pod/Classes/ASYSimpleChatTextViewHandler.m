@@ -252,7 +252,7 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
                                                        context:nil];
 
     CGFloat heightByBoundingRect = ceilf(CGRectGetHeight(boundingRect) + self.chatTextView.font.lineHeight);
-    return MAX(heightByBoundingRect, self.chatTextView.contentSize.height);
+    return heightByBoundingRect;
 }
 
 - (NSUInteger)currentNumberOfLines {
