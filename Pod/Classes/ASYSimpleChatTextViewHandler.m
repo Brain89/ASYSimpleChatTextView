@@ -80,7 +80,7 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 
         [self updateInputAccessoryView];
         [self updateMinimumNumberOfLines:ASYSimpleChatTextViewDefaultMinimumNumberOfLines
-                  andMaximumNumberOfLine:ASYSimpleChatTextViewDefaultMaximumNumberOfLines];
+                 andMaximumNumberOfLines:ASYSimpleChatTextViewDefaultMaximumNumberOfLines];
 
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleTextViewTextDidChange:)
