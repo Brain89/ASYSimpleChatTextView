@@ -133,7 +133,7 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
  
  @param maximumNumberOfLines Upper limit on number of lines
  */
-- (void)updateMaximumNumberOfLine:(NSUInteger)maximumNumberOfLines;
+- (void)updateMaximumNumberOfLines:(NSUInteger)maximumNumberOfLines;
 
 /**
  Limits resizing of UITextView between minimumNumberOfLines and maximumNumberOfLines.
@@ -141,7 +141,7 @@ typedef NS_ENUM(NSUInteger, ASYSimpleChatTextViewPosition) {
  @param minimumNumberOfLines Lower limit on number of lines
  @param maximumNumberOfLines Upper limit on number of lines
  */
-- (void)updateMinimumNumberOfLines:(NSUInteger)minimumNumberOfLines andMaximumNumberOfLine:(NSUInteger)maximumNumberOfLines;
+- (void)updateMinimumNumberOfLines:(NSUInteger)minimumNumberOfLines andMaximumNumberOfLines:(NSUInteger)maximumNumberOfLines;
 
 /**
  Sets text of textView and resizes it according to the length of the text.

@@ -128,7 +128,7 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
     [self updateMinimumNumberOfLines:minimumNumberOfLines andMaximumNumberOfLines:self.maximumNumberOfLines];
 }
 
-- (void)updateMaximumNumberOfLine:(NSUInteger)maximumNumberOfLines {
+- (void)updateMaximumNumberOfLines:(NSUInteger)maximumNumberOfLines {
     [self updateMinimumNumberOfLines:self.minimumNumberOfLines andMaximumNumberOfLines:maximumNumberOfLines];
 }
 
