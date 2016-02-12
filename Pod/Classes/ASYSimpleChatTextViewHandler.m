@@ -253,15 +253,9 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 }
 
 - (CGFloat)currentHeight {
-    CGFloat width = CGRectGetWidth(self.chatTextView.bounds) - 2.0 * self.chatTextView.textContainer.lineFragmentPadding -
-                    self.chatTextView.textContainerInset.left - self.chatTextView.textContainerInset.right;
-    CGRect boundingRect =
-        [self.chatTextView.attributedText boundingRectWithSize:CGSizeMake(width, CGFLOAT_MAX)
-                                                       options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading)
-                                                       context:nil];
-
-    CGFloat heightByBoundingRect = ceilf(CGRectGetHeight(boundingRect) + self.chatTextView.font.lineHeight);
-    return heightByBoundingRect;
+    CGFloat width = CGRectGetWidth(self.chatTextView.bounds);
+    CGSize fittingSize = [self.chatTextView sizeThatFits:CGSizeMake(width, CGFLOAT_MAX)];
+    return ceilf(fittingSize.height);
 }
 
 - (NSUInteger)currentNumberOfLines {
