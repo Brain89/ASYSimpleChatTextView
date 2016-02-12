@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "ASYSimpleChatTextView"
-  s.version          = "0.5.3"
+  s.version          = "0.5.4"
   s.summary          = "Tool to create a simple chat TextView"
 
   s.description      = <<-DESC
