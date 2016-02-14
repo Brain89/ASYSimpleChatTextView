@@ -260,9 +260,8 @@ static NSUInteger const ASYSimpleChatTextViewDefaultMaximumNumberOfLines = NSUIn
 
 - (NSUInteger)currentNumberOfLines {
     CGFloat caretHeight = [self caretHeight];
-    CGFloat totalHeight =
-        [self currentHeight] + self.chatTextView.textContainerInset.top + self.chatTextView.textContainerInset.bottom;
-    NSUInteger numberOfLines = (totalHeight / caretHeight) - 1u;
+    CGFloat currentHeight = [self currentHeight];
+    NSUInteger numberOfLines = (currentHeight / caretHeight);
     return numberOfLines;
 }
 
